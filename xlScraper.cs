@@ -216,6 +216,8 @@ namespace xlScraper
 
                 string cell;
 
+                string textFileNameHolder = textFileName;
+
                 cell = start.ToString() + ":" + end.ToString();
 
                 Excel.Range rng = sht.get_Range(cell);
@@ -259,13 +261,25 @@ namespace xlScraper
 
                 string dateTime = DateTime.Now.ToString("yyyyMMdd_Thhmmss");
 
-                textFileName = textFileName.Replace(" ", "_");
-                textFileName = textFileName.Replace("(", "_");
-                textFileName = textFileName.Replace(")", "_");
-                textFileName = textFileName.Replace("-", "_");
-                textFileName = textFileName.Replace("__", "_");
 
-                textFileName = "\\" + (textFileName + "_" + dateTime + ".txt").Replace("__", "_");
+                // check if the text file name has changed (i.e., that new items have been added to the name).
+                // if not, use the sheet name and datetime as the filename
+                if (textFileName == textFileNameHolder)
+                {
+                    textFileName = textFileName + "\\" + sht.Name + "_" + dateTime + ".txt";
+                }
+
+                else
+                {
+                    textFileName = textFileName.Replace(" ", "_");
+                    textFileName = textFileName.Replace("(", "_");
+                    textFileName = textFileName.Replace(")", "_");
+                    textFileName = textFileName.Replace("-", "_");
+                    textFileName = textFileName.Replace("__", "_");
+                    
+                    textFileName = "\\" + (textFileName + "_" + dateTime + ".txt").Replace("__", "_");
+                }
+                
 
 
 
@@ -294,6 +308,21 @@ namespace xlScraper
 
             string inputFilePath = args[0];
             string outputFolderPath = args[1];
+            string colIndex;
+
+            try
+            {
+                colIndex = args[2];
+            }
+            catch
+            {
+                colIndex = (78).ToString();
+            }
+            
+            
+
+            //string outputFolderPath = "C:\\Users\\jcolli27\\Desktop\\outbox";
+            //string inputFilePath = "G:\\JonC\\Emerald Status\\Archive\\20151005\\20151005.xlsx";
 
             string startTime = DateTime.Now.ToString("h:mm:ss tt");
 
@@ -311,7 +340,7 @@ namespace xlScraper
             
 
             // limit to 78 columns (col BZ) for speed. 
-            rangeSpec = GetExcelFile(xlApp, wb, ws, 78);
+            rangeSpec = GetExcelFile(xlApp, wb, ws, Convert.ToInt16(colIndex));
 
             Console.WriteLine("\n\n");
                       
@@ -327,7 +356,8 @@ namespace xlScraper
             Console.WriteLine("\n\nEnd: {0}", DateTime.Now.ToString("h:mm:ss tt"));
 
             // Pause
-            Console.ReadKey();
+            //Console.WriteLine("Press any key to exit.");
+            //Console.ReadKey();
 
             CloseExcel(xlApp, wb);
 
